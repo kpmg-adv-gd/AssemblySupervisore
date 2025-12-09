@@ -1,0 +1,15 @@
+{
+	"components": [
+		{
+			"id": "supervisoreAssembly",
+			"type": "VIEW_PLUGIN",
+			"allowMultipleInstances": false,
+			"name": "kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly",
+			"propertyEditor": "kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly.builder.PropertyEditor",
+			"i18n": "kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly.i18n.i18n",
+            "productionProcessEnabled": true,
+           "productionProcessTitle": "supervisoreAssembly",
+			"supportedPodTypes": ["WORK_CENTER","OPERATION","ORDER","OTHER"]
+		}   
+	]
+}

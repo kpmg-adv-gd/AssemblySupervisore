@@ -1,0 +1,14 @@
+{
+  "welcomeFile": "/supervisoreAssembly/index.html",
+  "authenticationMethod": "none",
+  "logout": {
+    "logoutEndpoint": "/do/logout"
+  },
+  "routes": [
+    {
+      "source": "^/supervisoreAssembly/(.*)$",
+      "target": "$1",
+      "localDir": "webapp"
+    }
+  ]
+}

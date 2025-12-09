@@ -1,0 +1,96 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:table="sap.ui.table" controllerName="kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly.controller.TileView" width="100%" height="100%">
+	
+	<App id="app"> 
+		<Page id="mainPage" title="{i18n>mainview.title}">
+			<content>
+				<!-- Header con filtri -->
+				<Panel id="filterPanel" width="100%" height="auto" expandable="false" expanded="true" backgroundDesign="Transparent">
+					<content>
+						<VBox class="sapUiSmallMargin">
+							<!-- Riga filtri -->
+							<HBox alignItems="Center" class="sapUiSmallMarginBottom">
+								<Label text="{i18n>mainview.filter.project}" class="sapUiSmallMarginEnd" width="100px"/>
+								<ComboBox id="projectFilter" width="200px" placeholder="{i18n>mainview.filter.project.placeholder}" class="sapUiSmallMarginEnd" items="{TileModel>/projects}" showSecondaryValues="true" required="true">
+									<core:ListItem key="{TileModel>project}" text="{TileModel>project}" />
+								</ComboBox>    
+								<Label text="{i18n>mainview.filter.wbs}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="100px"/>
+								<Input id="wbsFilter" width="200px" placeholder="{i18n>mainview.filter.wbs.placeholder}" class="sapUiSmallMarginEnd"/>
+								<Label text="{i18n>mainview.filter.showAll}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="100px"/>
+								<CheckBox id="showAllFilter" selected="false"/>
+								<!-- Un po di spazio per separare filtri e bottoni -->
+								<Label width="100px"/>
+								<!-- Bottoni -->
+								<Button id="filterButton" text="{i18n>mainview.btn.search}" icon="sap-icon://search" press="onSearchPress" type="Emphasized" class="sapUiSmallMarginEnd"/>
+								<Button id="clearButton" text="{i18n>mainview.btn.clear}" icon="sap-icon://clear-filter" press="onClearPress" class="sapUiSmallMarginEnd"/>
+								<Button id="expandButton" text="{i18n>mainview.btn.expandAll}" icon="sap-icon://expand-group" press="onExpandAll" class="sapUiSmallMarginEnd"/>
+								<Button id="collapseButton" text="{i18n>mainview.btn.collapseAll}" icon="sap-icon://collapse-group" press="onCollapseAll"/>
+							</HBox>
+						</VBox>
+					</content>
+				</Panel>
+
+				<!-- TreeTable -->
+				<table:TreeTable
+					id="treeTable"
+					width="100%"
+					busy="{TileModel>/BusyLoadingOpTable}" 
+					rows="{TileModel>/treeData}"
+					selectionMode="Single"
+					ariaLabelledBy="title"
+					rowSelectionChange="onRowSelectionChange"
+					enableColumnReordering="true" 
+					enableGrouping="true" 
+					selectionBehavior="RowOnly"
+					visibleRowCountMode="Auto"
+					visibleRowCount="10" 
+					rowHeight="45px"
+					class="kpmgGDTable">
+					<table:columns>
+						<table:Column width="20%">
+							<Label text="{i18n>mainview.table.project}"/>
+							<table:template>
+								<Text text="{TileModel>project}" wrapping="false"/>
+							</table:template>
+						</table:Column>
+						
+						<table:Column width="20%">
+							<Label text="{i18n>mainview.table.wbs}"/>
+							<table:template>
+								<Text text="{TileModel>wbs}" wrapping="false"/>
+							</table:template>
+						</table:Column>
+						
+						<table:Column width="20%">
+							<Label text="{i18n>mainview.table.sfc}"/>
+							<table:template>
+								<Text text="{TileModel>sfc}" wrapping="false"/>
+							</table:template>
+						</table:Column>
+						
+						<table:Column width="20%">
+							<Label text="{i18n>mainview.table.machineSection}"/>
+							<table:template>
+								<Text text="{TileModel>material}" wrapping="false"/>
+							</table:template>
+						</table:Column>
+						
+						<table:Column width="10%">
+							<Label text="{i18n>mainview.table.status}"/>
+							<table:template>
+                                <core:Icon visible="{= ${TileModel>status} !== undefined }" src="{path: 'TileModel>status',formatter: '.getStatusIcon'}" color="{path: 'TileModel>status', formatter: '.getStatusColor' }" class="statusIcon" />
+							</table:template>
+						</table:Column>
+						
+						<table:Column width="10%">
+							<Label text="{i18n>mainview.table.verbale}"/>
+							<table:template>
+                                <core:Icon visible="{= ${TileModel>reportStatus} !== undefined }" src="{path: 'TileModel>reportStatus',formatter: '.getStatusIconVerbale'}" color="{path: 'TileModel>reportStatus', formatter: '.getStatusColorVerbale' }" class="statusIcon" />
+							</table:template>
+						</table:Column>
+					</table:columns>
+				</table:TreeTable>
+			</content>
+		</Page>
+	</App>
+  
+</mvc:View>

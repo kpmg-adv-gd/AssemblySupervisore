@@ -1,0 +1,279 @@
+<mvc:View 
+	xmlns:mvc="sap.ui.core.mvc" 
+	xmlns="sap.m" 
+	xmlns:l="sap.ui.layout" 
+	xmlns:core="sap.ui.core"
+	controllerName="kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly.controller.DetailView" 
+	width="100%" 
+	height="100%">
+	
+	<Page id="detailPage" title="{i18n>detailview.title}" showNavButton="true" navButtonPress="onNavBack">
+		<content>
+			<VBox width="100%" height="100%">
+				
+				<HBox width="100%"  height="10%" class="sapUiSmallMargin" renderType="Bare"> 
+					<HBox width="33%" height="100%" class="headerBox" renderType="Bare">
+                        <Label text="{i18n>detailview.label.project}:" textAlign="End" vAlign="Middle" class="kpmgGDMediumlLabelInfo" />
+                        <Label text="{DetailModel>/selectedRow/project_parent}" textAlign="Left" vAlign="Middle" class="kpmgGDMediumlLabel paddingLeft" />
+                    </HBox>
+                    <HBox width="33%" height="100%" class="headerBox" renderType="Bare">
+                        <Label text="{i18n>detailview.label.sfc}:"  textAlign="End" vAlign="Middle" class="kpmgGDMediumlLabelInfo" />
+                        <Label text="{DetailModel>/selectedRow/sfc}" textAlign="Left" vAlign="Middle" class="kpmgGDMediumlLabel paddingLeft" />
+                    </HBox>
+                    <HBox width="33%" height="100%" class="headerBox" renderType="Bare">
+                        <Label text="{i18n>detailview.label.machineSection}:"  textAlign="End" vAlign="Middle" class="kpmgGDMediumlLabelInfo" />
+                        <Label text="{DetailModel>/selectedRow/material}" textAlign="Left" vAlign="Middle" class="kpmgGDMediumlLabel paddingLeft" />
+                    </HBox>
+				</HBox>
+
+				<!-- Container per le due tabelle -->
+				<HBox width="100%"  height="90%" class="sapUiSmallMargin" renderType="Bare"> 
+
+					<!-- Tabella sinistra - 35% -->
+					<VBox width="35%"  height="100%" class="sapUiSmallMarginEnd">
+						<Table
+							width="100%"
+							id="groupsTable"
+							items="{DetailModel>/groupsData}"
+							busy="{DetailModel>/BusyLoadingOpTable}" 
+							mode="SingleSelectMaster"
+							selectionChange="onSelectGroup"
+							class="sapUiSmallMarginTop">
+							<columns>
+								<Column>
+									<Text text="{i18n>detailview.sections.title}"/>
+								</Column>
+							</columns>
+							<items>
+								<ColumnListItem>
+									<cells>
+										<Text text="{DetailModel>description}"/>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</VBox>
+					
+					<!-- Tabella destra - 65% -->
+					<VBox width="65%" height="100%">
+						<VBox width="100%" height="55%" visible="{DetailModel>/viewCustomTableNC}">
+							<Table
+								width="100%" 
+								id="ncTable"
+								items="{DetailModel>/ncTableData}"
+								mode="None"
+								class="sapUiSmallMarginTop">
+								<columns>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.priority}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.weight}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.quantity}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.value}"/>
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{DetailModel>description}" wrapping="true"/>
+											<Text text="{DetailModel>weight}" wrapping="true"/>
+											<Text text="{DetailModel>quantity}" wrapping="true"/>
+											<Text text="{DetailModel>value}" wrapping="true"/>
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
+						<VBox width="100%" height="55%" visible="{DetailModel>/viewCustomTableResults}">
+							<ComboBox width="30%" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight"
+								items="{DetailModel>/listIdReportWeight}" >
+								<core:ListItem key="{DetailModel>id}" text="{DetailModel>id}" />
+							</ComboBox>    
+							<Table
+								width="100%" 
+								id="resultsTable"
+								items="{DetailModel>/resultsTableData}"
+								mode="None"
+								class="sapUiSmallMarginTop">
+								<columns>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.section}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.weight}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.vote}"/>
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{DetailModel>section}" wrapping="true"/>
+											<Text text="{DetailModel>weight}" wrapping="true"/>
+											<Text text="{DetailModel>vote}" wrapping="true"/>
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
+						<VBox width="100%" height="auto">
+							<Table
+								width="100%" 
+								id="rightTable"
+								items="{DetailModel>/parameteresData}"
+								mode="None"
+								class="sapUiSmallMarginTop">
+								<columns>
+									<Column width="50%">
+										<Text text="{i18n>detailview.table.parametro}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.valore}"/>
+									</Column>
+									<Column width="25%">
+										<Text text="{i18n>detailview.table.commento}"/>
+									</Column>
+								</columns>
+								<items>
+									<ColumnListItem>
+										<cells>
+											<Text text="{DetailModel>description}" wrapping="true"/>
+											<!-- Mostro box Input o Select in base al dcParameterType -->
+											<HBox width="95%" renderType="Bare">
+												<Input
+													id="valueInput"
+													value="{DetailModel>valueText}"
+													editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+													width="100%"
+													visible="{= ${DetailModel>dataType} === 'TEXT' }"/>
+												<DatePicker
+													id="valueDatePicker"
+													value="{DetailModel>valueData}"
+													editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+													width="100%"
+													displayFormat="dd/MM/yyyy"
+													valueFormat="dd/MM/yyyy"
+													visible="{= ${DetailModel>dataType} === 'DATA' }"/>
+												<Input
+													id="valueNumberInput"
+													value="{DetailModel>valueNumber}"
+													editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+													width="100%"
+													type="Number"
+													visible="{= ${DetailModel>dataType} === 'NUMBER' }"/>
+												<Select
+													id="valueBooleanSelect"
+													width="100%"
+													selectedKey="{DetailModel>valueBoolean}"
+													editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+													visible="{= ${DetailModel>dataType} === 'BOOLEAN' }"
+													change="onParameterValueChange">
+													<core:ListItem key="" text=""/>
+													<core:ListItem key="SI" text="{i18n>detailview.boolean.true}"/>
+													<core:ListItem key="NO" text="{i18n>detailview.boolean.false}"/>
+												</Select>
+												<ComboBox width="100%" change="onParameterValueChange" showSecondaryValues="true"
+													items="{DetailModel>listValues}" 
+													selectedKey="{DetailModel>valueList}"
+													editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+													visible="{= ${DetailModel>dataType} === 'LIST' }">
+													<core:ListItem key="{DetailModel>key}" text="{DetailModel>value}" />
+												</ComboBox>    
+											</HBox>
+											<Button
+												icon="sap-icon://comment"
+												type="Transparent"
+												press="onCommentPress"
+												tooltip="{i18n>detailview.comment.tooltip}"/>
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
+					</VBox>
+					
+				</HBox>
+
+				<!-- Spacer per spingere i bottoni in basso -->
+				<ToolbarSpacer/>
+
+				<!-- Bottoni in fondo a destra -->
+				<HBox justifyContent="End" class="sapUiSmallMarginBottom" alignItems="Center">
+					<HBox renderType="Bare" width="auto" visible="{DetailModel>/viewVotoSezione}" alignItems="Center" justifyContent="Center" >
+						<Label text="{DetailModel>/voteNameSection}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="auto"/>
+						<Input value="{DetailModel>/ncVotoSezione}" width="30%" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }" class="sapUiSmallMarginEnd" change="onVotoSezioneChange"/>								
+					</HBox>
+					<Button
+						id="refreshButton"
+						text="{i18n>detailview.btn.refresh}"
+						icon="sap-icon://refresh"
+						visible="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+						press="onRefreshPress"
+						class="sapUiSmallMarginEnd"/>
+					<Button
+						id="backButton"
+						text="{i18n>detailview.btn.back}"
+						icon="sap-icon://nav-back"
+						press="onNavBack" visible="false"
+						class="sapUiSmallMarginEnd"/>
+					<Button
+						id="saveButton"
+						text="{i18n>detailview.btn.save}"
+						icon="sap-icon://save"
+						visible="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+						type="Emphasized"
+						press="onSavePress"
+						class="sapUiSmallMarginEnd"/>
+					<Button
+						id="generateButton"
+						text="{i18n>detailview.btn.generate}"
+						icon="sap-icon://create"
+						visible="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+						type="Accept"
+						press="onGenerateInspectionPress"
+						class="sapUiSmallMarginEnd"/>
+					<Button
+						id="downloadPDFButton"
+						text="{i18n>detailview.btn.downloadPDF}"
+						icon="sap-icon://download"
+						visible="{= ${DetailModel>/selectedRow/reportStatus} === 'DONE' }"
+						type="Accept"
+						press="onDownloadReportPDF"
+						class="sapUiSmallMarginEnd"/>
+				</HBox>
+			</VBox>
+		</content>
+	</Page>
+
+	<!-- Dialog per commento -->
+	<Dialog
+		id="commentDialog"
+		title="{i18n>comment.dialog.title}"
+		contentWidth="400px"
+		contentHeight="250px">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<Label text="{i18n>comment.dialog.label}" class="sapUiSmallMarginBottom"/>
+				<TextArea
+					id="commentTextArea"
+					editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+					rows="8"
+					width="100%"
+					placeholder="{i18n>comment.dialog.placeholder}"/>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button text="{i18n>comment.dialog.btn.save}" visible="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }" type="Emphasized" press="onSaveComment"/>
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>comment.dialog.btn.cancel}" press="onCancelComment"/>
+		</endButton>
+	</Dialog>
+  
+</mvc:View>
