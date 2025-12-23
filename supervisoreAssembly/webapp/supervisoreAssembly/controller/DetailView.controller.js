@@ -8,6 +8,7 @@ sap.ui.define([
 
 	return BaseController.extend("kpmg.custom.tile.supervisoreAssembly.supervisoreAssembly.controller.DetailView", {
 		oDetailModel: new JSONModel(),
+		lastRefresh: false,
 
 		onInit: function () {
 			this.getView().setModel(this.oDetailModel, "DetailModel");
@@ -32,6 +33,8 @@ sap.ui.define([
 			that.oDetailModel.setProperty("/viewCustomTableResults", false);
 			that.oDetailModel.setProperty("/selectedGroup", undefined);
 			that.loadGroups(selected, false);
+			that.loadReportWeight();
+			that.loadCustomTableNC();
 		},
 
 		// Carico Data Collection - tabella sx
@@ -40,6 +43,7 @@ sap.ui.define([
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/api/getDataCollectionsBySFC";
 			let url = BaseProxyURL + pathOrderBomApi;
+			this.lastRefresh = refresh;
 
 			var plant = that.getInfoModel().getProperty("/plant");
 
@@ -47,7 +51,6 @@ sap.ui.define([
 				plant: plant,
 				selected: selected,
 				resource: "REPORT_ASSEMBLY",
-				stepId: "0020",
 				refresh: refresh
 			};
 
@@ -58,7 +61,7 @@ sap.ui.define([
 				var selectedGroup = that.oDetailModel.getProperty("/selectedGroup");
 				if (selectedGroup) {
 					var selectedUpdated = response.filter(item => item.group == selectedGroup.group);
-					if (selectedUpdated.length > 0) that.loadParameters(selectedUpdated[0]);
+					if (selectedUpdated.length > 0) that.onSelectGroup(undefined, selectedUpdated[0]);
 				}
 				that.oDetailModel.setProperty("/BusyLoadingOpTable", false);
 			}
@@ -73,37 +76,43 @@ sap.ui.define([
 		},
 
 		// Selezione di una Data Collection
-		onSelectGroup: function (oEvent) {
+		onSelectGroup: function (oEvent, selected) {
 			var that = this;
-			var selectedObject = oEvent.getParameter("listItem").getBindingContext("DetailModel").getObject();
+			var selectedObject = oEvent ? oEvent.getParameter("listItem").getBindingContext("DetailModel").getObject() : selected;
+			that.oDetailModel.setProperty("/selectedGroup", selectedObject);
 			// Caricamento tabelle custom
 			if (selectedObject.viewCustomTableNC) {
-				that.loadCustomTableNC();
 				that.oDetailModel.setProperty("/viewCustomTableNC", true);
-				that.oDetailModel.setProperty("/voteNameSection", "Voto sezione: ");
 				that.oDetailModel.setProperty("/viewVotoSezione", true);
+				that.oDetailModel.setProperty("/viewCustomTableResults", false);
+				that.loadCustomTableNC(selectedObject);
+				return;
 			} else {
 				that.oDetailModel.setProperty("/viewCustomTableNC", false);
 				that.oDetailModel.setProperty("/viewVotoSezione", false);
 			}
 			if (selectedObject.viewCustomTableResults) {
-				that.loadReportWeight();
 				that.oDetailModel.setProperty("/ncTableResults", [])
 				that.oDetailModel.setProperty("/viewCustomTableResults", true);
+				that.loadReportWeight();
 			} else {
 				that.oDetailModel.setProperty("/viewCustomTableResults", false);
 			}
 			// Carico parametri
-			that.oDetailModel.setProperty("/selectedGroup", selectedObject);
 			that.loadParameters(selectedObject);
 		},
 
 		// Carico Parametri - tabella dx
-		loadParameters: function (selectedGroup) {
+		loadParameters: function (selectedGroup, votoSezione) {
 			var that = this;
 			that.oDetailModel.setProperty("/parameteresData", selectedGroup.parameters);
 			if (selectedGroup.voteSection != null) {
 				that.oDetailModel.setProperty("/viewVotoSezione", true);
+				if (votoSezione && (selectedGroup.voteSection == "" || this.lastRefresh)) {
+					that.oDetailModel.setProperty("/selectedGroup/voteSection", votoSezione);
+					that.oDetailModel.getProperty("/groupsData").filter(item => item.group == selectedGroup.group)[0].voteSection = votoSezione;
+					that.oDetailModel.refresh();
+				}
 				that.oDetailModel.setProperty("/ncVotoSezione", selectedGroup.voteSection)
 				that.oDetailModel.setProperty("/voteNameSection", selectedGroup.voteNameSectionDesc);
 			}else{
@@ -111,7 +120,7 @@ sap.ui.define([
 			}
 		},
 
-		loadCustomTableNC: function () {
+		loadCustomTableNC: function (selectedObject) {
 			var that = this;
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/db/getCustomTableNC";
@@ -127,7 +136,7 @@ sap.ui.define([
 			// Callback di successo
 			var successCallback = function (response) {
 				that.oDetailModel.setProperty("/ncTableData", response.results)
-				that.oDetailModel.setProperty("/ncVotoSezione", response.votoSezione)
+				if (selectedObject) that.loadParameters(selectedObject, response.votoSezione);
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -136,7 +145,7 @@ sap.ui.define([
 
 			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, false);
 		},
-		loadReportWeight: function () {
+		loadReportWeight: function (refresh) {
 			var that = this;
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/db/getReportWeight";
@@ -152,8 +161,10 @@ sap.ui.define([
 				response.forEach(item => {
 					if (ids.filter(id => id.id == item.id).length == 0) ids.push({ id: item.id });
 				});
-				that.oDetailModel.setProperty("/listIdReportWeight", ids)
-				that.oDetailModel.setProperty("/listReportWeight", response)
+				that.oDetailModel.setProperty("/listIdReportWeight", ids);
+				that.oDetailModel.setProperty("/listReportWeight", response);
+				that.byId("idReportWeight").setSelectedKey(ids[0].id);
+				that.loadCustomTableResults(ids[0].id);
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -189,6 +200,22 @@ sap.ui.define([
 
 			// Callback di successo
 			var successCallback = function (response) {
+				var totalWeight = 0, totalScore = 0;
+				response.forEach(item => {
+					// Calcolo descrizione
+					if (that.oDetailModel.getProperty("/groupsData").filter(gp => gp.group == item.section).length > 0) {
+						item.sectionDesc = that.oDetailModel.getProperty("/groupsData").filter(gp => gp.group == item.section)[0].description;
+					}else{
+						item.sectionDesc = item.section;
+					}
+					// Calcolo totale
+					try {
+						item.vote = that.oDetailModel.getProperty("/groupsData").filter(gp => gp.group == item.section)[0].voteSection;
+						totalWeight += Number(item.weight.split("%")[0]);
+						totalScore += Number(item.weight.split("%")[0]) * Number(item.vote);
+					} catch (e) {}
+				});
+				response[response.length-1].vote = (totalScore / totalWeight).toFixed(2);
 				that.oDetailModel.setProperty("/resultsTableData", response)
 			}
 			// Callback di errore
@@ -229,8 +256,6 @@ sap.ui.define([
 					title: that.getI18n("msg.navBack.title"),
 					onClose: function (oAction) {
 						if (oAction === sap.m.MessageBox.Action.OK) {
-							that.byId("groupsTable").removeSelections();
-							that.oDetailModel.setProperty("/groupsData", []);
 							that.oDetailModel.setProperty("/parameteresData", []);
 							that.oDetailModel.setProperty("/viewVotoSezione", false);
 							var selected = that.getInfoModel().getProperty("/selectedRow");
@@ -263,6 +288,7 @@ sap.ui.define([
 			if (this._currentCommentItem) {
 				// Salva il commento nel modello
 				var sPath = this._currentCommentItem.getPath() + "/comment";
+				that.oDetailModel.setProperty(sPath, sComment);
 				that.oDetailModel.setProperty(sPath, sComment);
 				sap.m.MessageToast.show(that.getI18n("msg.comment.saved"));
 			}
@@ -329,10 +355,9 @@ sap.ui.define([
 			var successCallback = function (response) {
 				if (onlySave) {
 					sap.m.MessageToast.show(that.getI18n("msg.data.saved"));
-					that.byId("groupsTable").removeSelections();
 					that.oDetailModel.setProperty("/groupsData", []);
 					that.oDetailModel.setProperty("/parameteresData", []);
-							that.oDetailModel.setProperty("/viewVotoSezione", false);
+					that.oDetailModel.setProperty("/viewVotoSezione", false);
 					that.loadGroups(selected, false);
 					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
 				}
@@ -341,7 +366,17 @@ sap.ui.define([
 
 			// Callback di errore
 			var errorCallback = function (error) {
-				that.showErrorMessageBox(error);
+				var message = "";
+				for (var i = 0;i<error.length;i++) message += "\n" + error[i].dc + ":" +  error[i].message;
+				that.showErrorMessageBox(message);
+				if (onlySave) {
+					sap.m.MessageToast.show(that.getI18n("msg.data.saved"));
+					that.oDetailModel.setProperty("/groupsData", []);
+					that.oDetailModel.setProperty("/parameteresData", []);
+					that.oDetailModel.setProperty("/viewVotoSezione", false);
+					that.loadGroups(selected, false);
+					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
+				}
 				sap.ui.core.BusyIndicator.hide();
 			};
 
@@ -373,23 +408,26 @@ sap.ui.define([
 			let url = BaseProxyURL + pathOrderBomApi;
 
 			var plant = that.getInfoModel().getProperty("/plant");
-			var dataCollections = this.oDetailModel.getProperty("/groupsData");
+			var dataCollections = that.oDetailModel.getProperty("/groupsData");
+			var ncCustomTable = that.oDetailModel.getProperty("/ncTableData");
+			var resultCustomTable = that.oDetailModel.getProperty("/resultsTableData");
 			var selected = that.oDetailModel.getProperty("/selectedRow");
 
 			let params = {
 				plant: plant,
 				user: that.getInfoModel().getProperty("/user_id"),
 				selectedData: selected,
-				dataCollections: dataCollections
+				dataCollections: dataCollections,
+				ncCustomTable: ncCustomTable,
+				resultCustomTable: resultCustomTable
 			};
 
 			// Callback di successo
 			var successCallback = function (response) {
-				sap.m.MessageToast.show(that.getI18n("msg.comment.saved"));
-				that.byId("groupsTable").removeSelections();
+				sap.m.MessageToast.show(that.getI18n("msg.inspection.saved"));
 				that.oDetailModel.setProperty("/groupsData", []);
 				that.oDetailModel.setProperty("/parameteresData", []);
-							that.oDetailModel.setProperty("/viewVotoSezione", false);
+				that.oDetailModel.setProperty("/viewVotoSezione", false);
 				that.oDetailModel.setProperty("/selectedRow/reportStatus", "DONE");
 				that.loadGroups(selected, false);
 				sap.ui.core.BusyIndicator.hide();
@@ -416,8 +454,7 @@ sap.ui.define([
 
 			let params = {
 				plant: plant,
-				project: selected.project_parent,
-				material: selected.material
+				sfc: selected.sfc,
 			};
 
 			// Callback di successo

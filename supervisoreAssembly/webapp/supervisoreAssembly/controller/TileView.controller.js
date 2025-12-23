@@ -92,7 +92,7 @@ sap.ui.define([
 		// Azzera filtri
 		onClearPress: function() {
 			var oView = this.getView();
-			oView.byId("projectFilter").setValue("");
+			oView.byId("projectFilter").setSelectedKey("");
 			oView.byId("wbsFilter").setValue("");
 			var oTreeTable = oView.byId("treeTable");
 			var oBinding = oTreeTable.getBinding("rows");
@@ -134,7 +134,7 @@ sap.ui.define([
             switch (code) {
                 case "NEW":
                     return "sap-icon://rhombus-milestone-2";
-                case "IN_WORK":
+                case "ACTIVE":
                     return "sap-icon://circle-task-2";
                 case "DONE":
                     return "sap-icon://complete";
@@ -148,7 +148,7 @@ sap.ui.define([
             switch (code) {
                 case "NEW": // new
                     return "grey";
-                case "IN_WORK": // in work
+                case "ACTIVE": // in work
                     return "green"; // Blu
                 case "DONE": // done
                     return "green"; // Verde

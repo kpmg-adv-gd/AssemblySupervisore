@@ -27,7 +27,7 @@
 				</HBox>
 
 				<!-- Container per le due tabelle -->
-				<HBox width="100%"  height="90%" class="sapUiSmallMargin" renderType="Bare"> 
+				<HBox width="100%"  height="auto" class="sapUiSmallMargin" renderType="Bare"> 
 
 					<!-- Tabella sinistra - 35% -->
 					<VBox width="35%"  height="100%" class="sapUiSmallMarginEnd">
@@ -56,7 +56,7 @@
 					
 					<!-- Tabella destra - 65% -->
 					<VBox width="65%" height="100%">
-						<VBox width="100%" height="55%" visible="{DetailModel>/viewCustomTableNC}">
+						<VBox width="100%" height="auto" visible="{DetailModel>/viewCustomTableNC}">
 							<Table
 								width="100%" 
 								id="ncTable"
@@ -68,10 +68,10 @@
 										<Text text="{i18n>detailview.table.priority}"/>
 									</Column>
 									<Column width="25%">
-										<Text text="{i18n>detailview.table.weight}"/>
+										<Text text="{i18n>detailview.table.quantity}"/>
 									</Column>
 									<Column width="25%">
-										<Text text="{i18n>detailview.table.quantity}"/>
+										<Text text="{i18n>detailview.table.weight}"/>
 									</Column>
 									<Column width="25%">
 										<Text text="{i18n>detailview.table.value}"/>
@@ -81,15 +81,15 @@
 									<ColumnListItem>
 										<cells>
 											<Text text="{DetailModel>description}" wrapping="true"/>
-											<Text text="{DetailModel>weight}" wrapping="true"/>
 											<Text text="{DetailModel>quantity}" wrapping="true"/>
+											<Text text="{DetailModel>weight}" wrapping="true"/>
 											<Text text="{DetailModel>value}" wrapping="true"/>
 										</cells>
 									</ColumnListItem>
 								</items>
 							</Table>
 						</VBox>
-						<VBox width="100%" height="55%" visible="{DetailModel>/viewCustomTableResults}">
+						<VBox width="100%" height="auto" visible="{DetailModel>/viewCustomTableResults}">
 							<ComboBox width="30%" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight"
 								items="{DetailModel>/listIdReportWeight}" >
 								<core:ListItem key="{DetailModel>id}" text="{DetailModel>id}" />
@@ -130,13 +130,13 @@
 								mode="None"
 								class="sapUiSmallMarginTop">
 								<columns>
-									<Column width="50%">
+									<Column width="55%">
 										<Text text="{i18n>detailview.table.parametro}"/>
 									</Column>
-									<Column width="25%">
+									<Column width="35%">
 										<Text text="{i18n>detailview.table.valore}"/>
 									</Column>
-									<Column width="25%">
+									<Column width="10%">
 										<Text text="{i18n>detailview.table.commento}"/>
 									</Column>
 								</columns>
@@ -187,8 +187,8 @@
 												</ComboBox>    
 											</HBox>
 											<Button
-												icon="sap-icon://comment"
-												type="Transparent"
+												icon="sap-icon://comment" 
+												type="{= ${DetailModel>comment} === '' ? 'Transparent' : 'Emphasized' }"
 												press="onCommentPress"
 												tooltip="{i18n>detailview.comment.tooltip}"/>
 										</cells>
@@ -207,7 +207,7 @@
 				<HBox justifyContent="End" class="sapUiSmallMarginBottom" alignItems="Center">
 					<HBox renderType="Bare" width="auto" visible="{DetailModel>/viewVotoSezione}" alignItems="Center" justifyContent="Center" >
 						<Label text="{DetailModel>/voteNameSection}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="auto"/>
-						<Input value="{DetailModel>/ncVotoSezione}" width="30%" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }" class="sapUiSmallMarginEnd" change="onVotoSezioneChange"/>								
+						<Input value="{DetailModel>/ncVotoSezione}" type="Number" width="30%" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }" class="sapUiSmallMarginEnd" change="onVotoSezioneChange"/>								
 					</HBox>
 					<Button
 						id="refreshButton"
@@ -264,6 +264,7 @@
 					id="commentTextArea"
 					editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
 					rows="8"
+					maxLength="256"
 					width="100%"
 					placeholder="{i18n>comment.dialog.placeholder}"/>
 			</VBox>
