@@ -63,7 +63,7 @@ sap.ui.define([
 					if (selectedUpdated.length > 0) that.onSelectGroup(undefined, selectedUpdated[0]);
 				}
 				that.oDetailModel.setProperty("/BusyLoadingOpTable", false);
-				if (first) that.loadReportWeight();
+				if (refresh || first) that.loadReportWeight();
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -163,10 +163,9 @@ sap.ui.define([
 				});
 				that.oDetailModel.setProperty("/listIdReportWeight", ids);
 				that.oDetailModel.setProperty("/listReportWeight", response);
-				// Imposto sulla 1 la visualizzazione del menu a tendina
-				// forse ? se sono in stato DONE imposto la visualizzazione salvata in precedenza (dove?)
-				var selected = that.oDetailModel.getProperty("/selectedRow");
-				if (selected.idReportWeight != undefined) {
+
+				var selected = that.getInfoModel().getProperty("/selectedRow");
+				if (selected.idReportWeight != "") {
 					that.byId("idReportWeight").setSelectedKey(selected.idReportWeight);
 					that.loadCustomTableResults(selected.idReportWeight);
 				}else{
