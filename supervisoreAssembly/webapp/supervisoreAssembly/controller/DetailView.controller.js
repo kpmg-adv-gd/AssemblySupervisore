@@ -32,13 +32,12 @@ sap.ui.define([
 			that.oDetailModel.setProperty("/viewVotoSezione", false);
 			that.oDetailModel.setProperty("/viewCustomTableResults", false);
 			that.oDetailModel.setProperty("/selectedGroup", undefined);
-			that.loadGroups(selected, false);
-			that.loadReportWeight();
+			that.loadGroups(selected, false, true);
 			that.loadCustomTableNC();
 		},
 
 		// Carico Data Collection - tabella sx
-		loadGroups: function (selected, refresh) {
+		loadGroups: function (selected, refresh, first) {
 			var that = this;
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/api/getDataCollectionsBySFC";
@@ -64,6 +63,7 @@ sap.ui.define([
 					if (selectedUpdated.length > 0) that.onSelectGroup(undefined, selectedUpdated[0]);
 				}
 				that.oDetailModel.setProperty("/BusyLoadingOpTable", false);
+				if (first) that.loadReportWeight();
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -163,8 +163,16 @@ sap.ui.define([
 				});
 				that.oDetailModel.setProperty("/listIdReportWeight", ids);
 				that.oDetailModel.setProperty("/listReportWeight", response);
-				that.byId("idReportWeight").setSelectedKey(ids[0].id);
-				that.loadCustomTableResults(ids[0].id);
+				// Imposto sulla 1 la visualizzazione del menu a tendina
+				// forse ? se sono in stato DONE imposto la visualizzazione salvata in precedenza (dove?)
+				var selected = that.oDetailModel.getProperty("/selectedRow");
+				if (selected.idReportWeight != undefined) {
+					that.byId("idReportWeight").setSelectedKey(selected.idReportWeight);
+					that.loadCustomTableResults(selected.idReportWeight);
+				}else{
+					that.byId("idReportWeight").setSelectedKey(ids[0].id);
+					that.loadCustomTableResults(ids[0].id);
+				}
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -348,7 +356,8 @@ sap.ui.define([
 				sfc: selected.sfc,
 				resource: "REPORT_ASSEMBLY",
 				dataCollections: datas,
-				passInWork: onlySave && that.oDetailModel.getProperty("/selectedRow/reportStatus") != "IN_WROK"
+				passInWork: onlySave && that.oDetailModel.getProperty("/selectedRow/reportStatus") != "IN_WROK",
+				idReportWeight: that.byId("idReportWeight").getSelectedKey()
 			};
 
 			// Callback di successo

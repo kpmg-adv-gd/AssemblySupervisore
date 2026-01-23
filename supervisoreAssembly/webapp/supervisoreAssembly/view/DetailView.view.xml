@@ -90,7 +90,7 @@
 							</Table>
 						</VBox>
 						<VBox width="100%" height="auto" visible="{DetailModel>/viewCustomTableResults}">
-							<ComboBox width="30%" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight"
+							<ComboBox width="30%" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
 								items="{DetailModel>/listIdReportWeight}" >
 								<core:ListItem key="{DetailModel>id}" text="{DetailModel>id}" />
 							</ComboBox>    
