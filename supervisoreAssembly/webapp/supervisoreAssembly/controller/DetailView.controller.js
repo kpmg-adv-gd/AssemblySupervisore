@@ -32,6 +32,7 @@ sap.ui.define([
 			that.oDetailModel.setProperty("/viewVotoSezione", false);
 			that.oDetailModel.setProperty("/viewCustomTableResults", false);
 			that.oDetailModel.setProperty("/selectedGroup", undefined);
+			that.oDetailModel.setProperty("/oldWID", that.getInfoModel().getProperty("/selectedRow/idReportWeight"));
 			that.loadGroups(selected, false, true);
 			that.loadCustomTableNC();
 		},
@@ -63,7 +64,10 @@ sap.ui.define([
 					if (selectedUpdated.length > 0) that.onSelectGroup(undefined, selectedUpdated[0]);
 				}
 				that.oDetailModel.setProperty("/BusyLoadingOpTable", false);
-				if (refresh || first) that.loadReportWeight();
+				if (refresh || first) {
+					that.getInfoModel().setProperty("/selectedRow/idReportWeight", that.oDetailModel.getProperty("/oldWID"))
+					that.loadReportWeight();
+				}
 			}
 			// Callback di errore
 			var errorCallback = function (error) {
@@ -183,6 +187,7 @@ sap.ui.define([
 		onIdWeightChange: function (oEvent) {
 			var that = this;
 			var id = that.byId("idReportWeight").getSelectedKey();
+			that.getInfoModel().setProperty("/selectedRow/idReportWeight",id)
 			if (id != "") {
 				that.loadCustomTableResults(id);
 			}
@@ -236,6 +241,7 @@ sap.ui.define([
 		onNavBack: function () {
 			var that = this;			
 			var reportStatus = that.oDetailModel.getProperty("/selectedRow").reportStatus;
+			that.getInfoModel().setProperty("/selectedRow/idReportWeight", that.oDetailModel.getProperty("/oldWID"))
 			if (reportStatus == "DONE") {
 				sap.ui.getCore().getEventBus().publish("TileViewMessage", "refreshModel", null);
 				that.navToTileView();
@@ -366,10 +372,13 @@ sap.ui.define([
 					that.oDetailModel.setProperty("/groupsData", []);
 					that.oDetailModel.setProperty("/parameteresData", []);
 					that.oDetailModel.setProperty("/viewVotoSezione", false);
+					that.oDetailModel.setProperty("/oldWID", that.getInfoModel().getProperty("/selectedRow/idReportWeight"));
 					that.loadGroups(selected, false);
 					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
+					sap.ui.core.BusyIndicator.hide();
+				}else{
+					that.generateInspection();
 				}
-				sap.ui.core.BusyIndicator.hide();
 			}
 
 			// Callback di errore
@@ -377,14 +386,6 @@ sap.ui.define([
 				var message = "";
 				for (var i = 0;i<error.length;i++) message += "\n" + error[i].dc + ":" +  error[i].message;
 				that.showErrorMessageBox(message);
-				if (onlySave) {
-					sap.m.MessageToast.show(that.getI18n("msg.data.saved"));
-					that.oDetailModel.setProperty("/groupsData", []);
-					that.oDetailModel.setProperty("/parameteresData", []);
-					that.oDetailModel.setProperty("/viewVotoSezione", false);
-					that.loadGroups(selected, false);
-					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
-				}
 				sap.ui.core.BusyIndicator.hide();
 			};
 
@@ -402,7 +403,6 @@ sap.ui.define([
 					onClose: function (oAction) {
 						if (oAction === sap.m.MessageBox.Action.OK) {
 							that.onSave(false);
-							that.generateInspection();
 						}
 					}
 				}
@@ -447,8 +447,7 @@ sap.ui.define([
 				sap.ui.core.BusyIndicator.hide();
 			};
 
-			sap.ui.core.BusyIndicator.show(0);
-			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, false);
+			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, true);
 		},
 
 		onDownloadReportPDF: function () {

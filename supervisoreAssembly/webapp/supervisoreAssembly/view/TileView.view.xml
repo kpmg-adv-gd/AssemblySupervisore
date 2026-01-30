@@ -14,7 +14,9 @@
 									<core:ListItem key="{TileModel>project}" text="{TileModel>project}" />
 								</ComboBox>    
 								<Label text="{i18n>mainview.filter.wbs}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="100px"/>
-								<Input id="wbsFilter" width="200px" placeholder="{i18n>mainview.filter.wbs.placeholder}" class="sapUiSmallMarginEnd"/>
+								<ComboBox id="wbsFilter" width="200px" placeholder="{i18n>mainview.filter.wbs.placeholder}" class="sapUiSmallMarginEnd" items="{TileModel>/WBEs}" showSecondaryValues="true" required="true">
+									<core:ListItem key="{TileModel>wbe}" text="{TileModel>wbe}" />
+								</ComboBox>  
 								<Label text="{i18n>mainview.filter.showAll}" class="sapUiSmallMarginBegin sapUiSmallMarginEnd" width="100px"/>
 								<CheckBox id="showAllFilter" selected="false"/>
 								<!-- Un po di spazio per separare filtri e bottoni -->
@@ -52,37 +54,32 @@
 								<Text text="{TileModel>project}" wrapping="false"/>
 							</table:template>
 						</table:Column>
-						
 						<table:Column width="20%">
 							<Label text="{i18n>mainview.table.wbs}"/>
 							<table:template>
 								<Text text="{TileModel>wbs}" wrapping="false"/>
 							</table:template>
 						</table:Column>
-						
-						<table:Column width="20%">
-							<Label text="{i18n>mainview.table.sfc}"/>
-							<table:template>
-								<Text text="{TileModel>sfc}" wrapping="false"/>
-							</table:template>
-						</table:Column>
-						
-						<table:Column width="20%">
+						<table:Column width="16%">
 							<Label text="{i18n>mainview.table.machineSection}"/>
 							<table:template>
 								<Text text="{TileModel>material}" wrapping="false"/>
 							</table:template>
 						</table:Column>
-						
-						<table:Column width="10%">
-							<Label text="{i18n>mainview.table.status}"/>
+						<table:Column width="24%">
+							<Label text="{i18n>mainview.table.sfc}"/>
+							<table:template>
+								<Text text="{TileModel>sfc}" wrapping="false"/>
+							</table:template>
+						</table:Column>
+						<table:Column width="10%" hAlign="Center">
+							<Label text="{i18n>mainview.table.statusSFC}"/>
 							<table:template>
                                 <core:Icon visible="{= ${TileModel>status} !== undefined }" src="{path: 'TileModel>status',formatter: '.getStatusIcon'}" color="{path: 'TileModel>status', formatter: '.getStatusColor' }" class="statusIcon" />
 							</table:template>
 						</table:Column>
-						
-						<table:Column width="10%">
-							<Label text="{i18n>mainview.table.verbale}"/>
+						<table:Column width="10%" hAlign="Center" >
+							<Label text="{i18n>mainview.table.statusVerbale}"/>
 							<table:template>
                                 <core:Icon visible="{= ${TileModel>reportStatus} !== undefined }" src="{path: 'TileModel>reportStatus',formatter: '.getStatusIconVerbale'}" color="{path: 'TileModel>reportStatus', formatter: '.getStatusColorVerbale' }" class="statusIcon" />
 							</table:template>

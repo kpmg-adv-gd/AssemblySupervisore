@@ -90,10 +90,13 @@
 							</Table>
 						</VBox>
 						<VBox width="100%" height="auto" visible="{DetailModel>/viewCustomTableResults}">
-							<ComboBox width="30%" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
-								items="{DetailModel>/listIdReportWeight}" >
-								<core:ListItem key="{DetailModel>id}" text="{DetailModel>id}" />
-							</ComboBox>    
+							<HBox height="auto" width="100%" renderType="Bare" alignItems="Center" justifyContent="Center">
+								<Label text="Configurazione:" width="auto" class="sapUiSmallMarginBegin sapUiSmallMarginEnd"></Label>
+								<ComboBox width="auto" change="onIdWeightChange" showSecondaryValues="true" id="idReportWeight" editable="{= ${DetailModel>/selectedRow/reportStatus} !== 'DONE' }"
+									items="{DetailModel>/listIdReportWeight}" >
+									<core:ListItem key="{DetailModel>id}" text="{DetailModel>id}" />
+								</ComboBox>  
+							</HBox>  
 							<Table
 								width="100%" 
 								id="resultsTable"

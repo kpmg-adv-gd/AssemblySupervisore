@@ -20,6 +20,7 @@ sap.ui.define([
         onAfterRendering: function(){
             var that=this;
 			that.getProjects();
+			that.getWBEs();
         },
 
         refreshModel: function () {
@@ -27,7 +28,7 @@ sap.ui.define([
             that.oTileModel.refresh();
         },
 
-        // Ottengo lista dei Progetti
+        // Ottengo lista dei Progetti e WBE
         getProjects: function () {
             var that=this;
             let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
@@ -43,6 +44,29 @@ sap.ui.define([
             // Callback di successo
             var successCallback = function(response) {
                 that.oTileModel.setProperty("/projects", response);
+            }
+            // Callback di errore
+            var errorCallback = function(error) {
+                console.log("Chiamata POST fallita:", error);
+            };
+
+            CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that);
+        },
+        getWBEs: function () {
+            var that=this;
+            let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
+            let pathOrderBomApi = "/api/getWBEVerbaliSupervisoreAssembly";
+            let url = BaseProxyURL+pathOrderBomApi; 
+            
+            var plant = that.getInfoModel().getProperty("/plant");
+
+            let params={
+                plant: plant,
+            };
+
+            // Callback di successo
+            var successCallback = function(response) {
+                that.oTileModel.setProperty("/WBEs", response);
             }
             // Callback di errore
             var errorCallback = function(error) {
