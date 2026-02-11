@@ -195,13 +195,53 @@ sap.ui.define([
         getStatusColorVerbale: function (code) {
             switch (code) {
                 case "IN_WORK": // in work
-                    return "#FFBC00"; // Giallo
+                    return "#dba204e8"; // Giallo
                 case "DONE": // done
                     return "green"; // Verde
                 default:
                     return "red"; // Colore di default
             }
         },
+        onDownloadReportPDF: function (oEvent) {
+			var that = this;
+			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
+			let pathOrderBomApi = "/api/downloadVerbalePDF";
+			let url = BaseProxyURL + pathOrderBomApi;
+
+            var selected = oEvent.getSource().getBindingContext("TileModel").getObject();
+
+			var plant = that.getInfoModel().getProperty("/plant");
+
+			let params = {
+				plant: plant,
+				sfc: selected.sfc,
+			};
+
+			// Callback di successo
+			var successCallback = function (response) {
+				try {
+					var pdfBase64 = response.base64;
+					var byteCharacters = atob(pdfBase64);
+					var byteNumbers = new Array(byteCharacters.length).fill().map((_,i)=>byteCharacters.charCodeAt(i));
+					var byteArray = new Uint8Array(byteNumbers);
+					var blob = new Blob([byteArray], { type: "application/pdf" });
+
+					var url = URL.createObjectURL(blob);
+					var link = document.createElement("a");
+					link.href = url;
+					//link.download = "verbale_" + selected.sfc + + "_" + new Date().toISOString().slice(0,10) + ".pdf";
+					//link.click();
+					window.open(url, "_blank");
+				} catch (e) { console.log (e.message) }
+			}
+			// Callback di errore
+			var errorCallback = function (error) {
+				that.showErrorMessageBox(error);
+			};
+
+			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, false);
+		
+		},
 
 	});
 });

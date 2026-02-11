@@ -84,6 +84,12 @@
                                 <core:Icon visible="{= ${TileModel>reportStatus} !== undefined }" src="{path: 'TileModel>reportStatus',formatter: '.getStatusIconVerbale'}" color="{path: 'TileModel>reportStatus', formatter: '.getStatusColorVerbale' }" class="statusIcon" />
 							</table:template>
 						</table:Column>
+						<table:Column width="8%" hAlign="Center" >
+								<Label text="PDF"/>
+								<table:template>
+									<core:Icon src="sap-icon://download" color="green" class="largeIcon" visible="{= ${TileModel>reportStatus} === 'DONE' }" press="onDownloadReportPDF" />
+								</table:template>
+						</table:Column>
 					</table:columns>
 				</table:TreeTable>
 			</content>

@@ -375,7 +375,6 @@ sap.ui.define([
 					that.oDetailModel.setProperty("/oldWID", that.getInfoModel().getProperty("/selectedRow/idReportWeight"));
 					that.loadGroups(selected, false);
 					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
-					sap.ui.core.BusyIndicator.hide();
 				}else{
 					that.generateInspection();
 				}
@@ -386,11 +385,9 @@ sap.ui.define([
 				var message = "";
 				for (var i = 0;i<error.length;i++) message += "\n" + error[i].dc + ":" +  error[i].message;
 				that.showErrorMessageBox(message);
-				sap.ui.core.BusyIndicator.hide();
 			};
 
-			sap.ui.core.BusyIndicator.show(0);
-			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, false);
+			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, true);
 		},
 
 		onGenerateInspectionPress: function () {
@@ -438,13 +435,11 @@ sap.ui.define([
 				that.oDetailModel.setProperty("/viewVotoSezione", false);
 				that.oDetailModel.setProperty("/selectedRow/reportStatus", "DONE");
 				that.loadGroups(selected, false);
-				sap.ui.core.BusyIndicator.hide();
 			}
 
 			// Callback di errore
 			var errorCallback = function (error) {
 				that.showErrorMessageBox(error);
-				sap.ui.core.BusyIndicator.hide();
 			};
 
 			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, true);
