@@ -195,7 +195,7 @@ sap.ui.define([
         getStatusColorVerbale: function (code) {
             switch (code) {
                 case "IN_WORK": // in work
-                    return "#dba204e8"; // Giallo
+                    return "#d19e13"; // Giallo
                 case "DONE": // done
                     return "green"; // Verde
                 default:
