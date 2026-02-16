@@ -1,18 +1,18 @@
-ID: supervioreAssembly
+ID: supervisoreAssembly
 _schema-version: '3.2'
 version: 0.0.1
 
 modules:
- - name: supervioreAssembly
+ - name: supervisoreAssembly
    type: html5
-   path: supervioreAssembly
+   path: supervisoreAssembly
    parameters:
       disk-quota: 512M
       memory: 256M
    properties:
     httpHeaders:
        - X-Frame-Options: deny
-    CORS: "[{\"uriPattern\": \"^/supervioreAssembly/(.*)$\",\"allowedOrigin\": [
+    CORS: "[{\"uriPattern\": \"^/supervisoreAssembly/(.*)$\",\"allowedOrigin\": [
            {\"host\": \"sap-dmc-test-96ypknc8.execution.eu20-quality.web.dmc.cloud.sap\",\"protocol\": \"https\"}],
            \"allowedMethods\": [\"GET\",\"OPTIONS\",\"PUT\",\"OPTIONS\",\"DELETE\"],
            \"allowedHeaders\":[\"Origin\", \"Accept\",\"X-Requested-With\",\"Content-Type\",
@@ -24,10 +24,10 @@ modules:
    #build-parameters:
       #builder: grunt
    requires:
-    - name: supervioreAssembly_uaa
+    - name: supervisoreAssembly_uaa
 
 resources:
- - name: supervioreAssembly_uaa
+ - name: supervisoreAssembly_uaa
    parameters:
       path: ./xs-security.json
       service-plan: application
