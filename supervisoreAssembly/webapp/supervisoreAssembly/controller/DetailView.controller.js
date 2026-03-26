@@ -35,6 +35,31 @@ sap.ui.define([
 			that.oDetailModel.setProperty("/oldWID", that.getInfoModel().getProperty("/selectedRow/idReportWeight"));
 			that.loadGroups(selected, false, true);
 			that.loadCustomTableNC();
+			that.getWorkcenters();
+		},
+
+		getWorkcenters: function () {
+			var that = this;
+			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
+			let pathOrderBomApi = "/db/getInternalWorkcenters";
+			let url = BaseProxyURL + pathOrderBomApi;
+			var plant = that.getInfoModel().getProperty("/plant");
+
+			let params = {
+				plant: plant
+			};
+
+			// Callback di successo
+			var successCallback = function (response) {
+				this.oDetailModel.setProperty("/workcenters", [ ...[ {workcenter: "" } ], ...response ])
+			}
+			// Callback di errore
+			var errorCallback = function (error) {
+				this.oDetailModel.setProperty("/workcenters", [])
+			};
+
+			that.oDetailModel.setProperty("/BusyLoadingOpTable", true);
+			CommonCallManager.callProxy("POST", url, params, true, successCallback, errorCallback, that, true, false);
 		},
 
 		// Carico Data Collection - tabella sx
@@ -347,7 +372,7 @@ sap.ui.define([
 			this.onSave(true);
 		},
 
-		onSave: function (onlySave) {
+		onSave: function (onlySave, selectedInspectionOption) {
 			var that = this;
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/api/saveDataCollections";
@@ -378,7 +403,7 @@ sap.ui.define([
 					that.loadGroups(selected, false);
 					that.oDetailModel.setProperty("/selectedRow/reportStatus", "IN_WORK");
 				}else{
-					that.generateInspection();
+					that.generateInspection(selectedInspectionOption);
 				}
 			}
 
@@ -393,22 +418,43 @@ sap.ui.define([
 		},
 
 		onGenerateInspectionPress: function () {
-			// Genera il documento di ispezione
+			// Apri il dialog per la generazione ispezione
 			var that = this;
-			sap.m.MessageBox.confirm(
-				that.getI18n("msg.inspection.confirm"),
-				{
-					title: that.getI18n("msg.inspection.title"),
-					onClose: function (oAction) {
-						if (oAction === sap.m.MessageBox.Action.OK) {
-							that.onSave(false);
-						}
-					}
-				}
-			);
+			
+			// Imposta le opzioni del menu a tendina (personalizza in base alle tue esigenze)
+			var aOptions = this.oDetailModel.getProperty("/workcenters");
+			that.oDetailModel.setProperty("/inspectionOptions", aOptions);
+			
+			// Reset della selezione
+			var oSelect = that.byId("inspectionSelect");
+			if (oSelect) {
+				oSelect.setSelectedKey("");
+			}
+			
+			// Apri il dialog
+			that.byId("inspectionDialog").open(); 
 		},
 
-		generateInspection: function () {
+		onConfirmInspection: function () {
+			var that = this;
+			var oSelect = that.byId("inspectionSelect");
+			var sSelectedKey = oSelect.getSelectedKey();
+			
+			if (!sSelectedKey || sSelectedKey == "") {
+				sap.m.MessageToast.show(that.getI18n("msg.inspection.selectRequired"));
+				return;
+			}
+			
+			// Chiudi il dialog e procedi con il salvataggio
+			that.byId("inspectionDialog").close();
+			that.onSave(false, sSelectedKey);
+		},
+
+		onCancelInspection: function () {
+			this.byId("inspectionDialog").close();
+		},
+
+		generateInspection: function (selectedInspectionOption) {
 			var that = this;
 			let BaseProxyURL = that.getInfoModel().getProperty("/BaseProxyURL");
 			let pathOrderBomApi = "/api/generateInspection";
@@ -426,7 +472,8 @@ sap.ui.define([
 				selectedData: selected,
 				dataCollections: dataCollections,
 				ncCustomTable: ncCustomTable,
-				resultCustomTable: resultCustomTable
+				resultCustomTable: resultCustomTable,
+				workcenter: selectedInspectionOption
 			};
 
 			// Callback di successo

@@ -279,5 +279,30 @@
 			<Button text="{i18n>comment.dialog.btn.cancel}" press="onCancelComment"/>
 		</endButton>
 	</Dialog>
+
+	<!-- Dialog per generazione ispezione -->
+	<Dialog
+		id="inspectionDialog"
+		title="{i18n>inspection.dialog.title}"
+		contentWidth="500px">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<Label text="{i18n>inspection.dialog.message}" class="sapUiSmallMarginBottom"/>
+				<Select
+					id="inspectionSelect"
+					width="100%"
+					class="sapUiSmallMarginTop"
+					items="{DetailModel>/inspectionOptions}">
+					<core:ListItem key="{DetailModel>workcenter}" text="{DetailModel>workcenter}" />
+				</Select>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button text="{i18n>inspection.dialog.btn.confirm}" type="Emphasized" press="onConfirmInspection"/>
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>inspection.dialog.btn.cancel}" press="onCancelInspection"/>
+		</endButton>
+	</Dialog>
   
 </mvc:View>
