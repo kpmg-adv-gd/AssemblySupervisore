@@ -282,12 +282,16 @@
 
 	<!-- Dialog per generazione ispezione -->
 	<Dialog
-		id="inspectionDialog"
-		title="{i18n>inspection.dialog.title}"
-		contentWidth="500px">
+    id="inspectionDialog"
+    title="{i18n>inspection.dialog.title}"
+    contentWidth="500px">
 		<content>
 			<VBox class="sapUiSmallMargin">
-				<Label text="{i18n>inspection.dialog.message}" class="sapUiSmallMarginBottom"/>
+				<Label
+					text="{i18n>inspection.dialog.message}"
+					wrapping="true"
+					width="100%"
+					class="sapUiSmallMarginBottom"/>
 				<Select
 					id="inspectionSelect"
 					width="100%"
